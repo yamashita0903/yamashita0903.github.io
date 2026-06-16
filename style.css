@@ -19,7 +19,7 @@
   --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-digital: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   
-  --mobile-spacer-height: 1000px;
+  --mobile-spacer-height: 500px;
 }
 
 /* Reset & Base Styles */
