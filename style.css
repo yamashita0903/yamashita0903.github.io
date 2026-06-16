@@ -19,7 +19,7 @@
   --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-digital: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   
-  --mobile-spacer-height: 500px;
+  --mobile-spacer-height: 300px;
 }
 
 /* Reset & Base Styles */
@@ -40,7 +40,7 @@ html {
 
 body {
   width: 100%;
-  min-height: calc(100vh + var(--mobile-spacer-height));
+  min-height: calc(100dvh + var(--mobile-spacer-height));
   overflow-x: hidden;
   overflow-y: auto;
   background-color: var(--color-bg-dark);
@@ -81,7 +81,7 @@ body {
 #app-container {
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100dvh;
   z-index: 1;
   display: flex;
   justify-content: center;
