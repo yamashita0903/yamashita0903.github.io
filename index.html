@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sleek Cafè Tech - Future Coffee Machine</title>
+  
+  <!-- CSS Link -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- MediaPipe CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <!-- Background Glow FX -->
+  <div class="bg-glow"></div>
+  <div class="bg-particles" id="particles-container"></div>
+
+  <!-- Main Application Container -->
+  <main id="app-container">
+    
+    <!-- 1. STANDBY STATE (広告モード) -->
+    <section id="state-standby" class="state-section active">
+      <div class="ad-container">
+        <video id="standby-cm-video" class="standby-cm-video" src="CM1.mp4" autoplay loop playsinline></video>
+        <div class="standby-reference-overlay">
+          <div class="standby-content">
+            <div class="brand">
+              <svg class="cup-icon" viewBox="0 0 64 56" aria-hidden="true">
+                <path d="M16 24h29v14c0 8-6 13-15 13s-14-5-14-13V24Z"></path>
+                <path d="M45 28h5c5 0 8 3 8 8s-4 8-9 8h-4"></path>
+                <line x1="23" y1="14" x2="23" y2="7"></line>
+                <line x1="31" y1="14" x2="31" y2="4"></line>
+                <line x1="39" y1="14" x2="39" y2="7"></line>
+              </svg>
+              <div class="standby-logo-text">GOOD COFFEE<br>GOOD DAY</div>
+            </div>
+          </div>
+          <div class="standby-indicator">
+            <div class="pulse-ring"></div>
+            <span class="indicator-text">STANDBY</span>
+          </div>
+        </div>
+        <!-- 広告用 Canvas アニメーション -->
+        <canvas id="ad-canvas"></canvas>
+        <div class="ad-overlay">
+          <div class="brand-logo">
+            <span class="logo-icon">☕</span>
+            <span class="logo-text">AETHER COFFEE</span>
+          </div>
+          <h1 class="ad-title">極上のドリップを、あなたに。</h1>
+          <p class="ad-subtitle">近づくとAIが最適なメニューを提案します</p>
+          <div class="standby-indicator">
+            <div class="pulse-ring"></div>
+            <span class="indicator-text">STANDBY</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. ORDERABLE STATE (注文可能) -->
+    <section id="state-orderable" class="state-section">
+      <video id="order-bg-video" class="order-bg-video" src="注文可.mp4" muted playsinline></video>
+      <div class="order-container">
+        <div id="order-greeting" class="order-greeting" style="display: none;">
+          <h2 id="order-greeting-title" class="order-greeting-title"></h2>
+          <p id="order-greeting-message" class="order-greeting-message"></p>
+        </div>
+        <p id="order-question" class="order-question">コーヒーを<br>淹れますか？</p>
+        <button id="btn-brew" class="brew-button" type="button">淹れる</button>
+        <p id="order-sub" class="order-sub">タップしてください</p>
+      </div>
+    </section>
+
+    <!-- 4. BREWING STATE (抽出中) -->
+    <section id="state-brewing" class="state-section">
+      <video id="brewing-cm-video" class="brewing-cm-video" src="CM1.mp4" playsinline></video>
+      <div class="brewing-cm-dim"></div>
+      <div class="brewing-container">
+        <h2 class="brewing-title orbitron">BREWING...</h2>
+        <p class="brewing-subtitle">おいしいコーヒーを抽出しています。香りをお楽しみください。</p>
+        
+        <!-- 抽出アニメーション -->
+        <div class="brew-animation-box">
+          <div class="nozzle-wrapper">
+            <div class="nozzle"></div>
+            <div class="drip-stream" id="drip-stream"></div>
+          </div>
+          
+          <div class="cup-container">
+            <svg viewBox="0 0 120 120" class="cup-svg">
+              <!-- カップの縁と本体 -->
+              <path class="cup-outline" d="M30,40 L90,40 C90,40 88,95 60,95 C32,95 30,40 30,40 Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+              <!-- 取っ手 -->
+              <path class="cup-handle" d="M90,52 C100,52 108,58 108,66 C108,74 100,80 90,80" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+              <!-- ソーサー -->
+              <path class="cup-plate" d="M20,105 L100,105" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+              
+              <!-- コーヒーの液体 (マスクで制御) -->
+              <clipPath id="coffee-clip">
+                <rect id="coffee-liquid-mask" x="30" y="95" width="60" height="65" />
+              </clipPath>
+              <path class="cup-liquid" d="M30,40 L90,40 C90,40 88,95 60,95 C32,95 30,40 30,40 Z" fill="var(--color-coffee)" clip-path="url(#coffee-clip)"/>
+            </svg>
+            
+            <div class="brewing-steam">
+              <span class="steam-flow" style="--d:0.1s"></span>
+              <span class="steam-flow" style="--d:0.5s"></span>
+              <span class="steam-flow" style="--d:0.9s"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="progress-ring-container">
+          <svg class="progress-ring" width="120" height="120">
+            <circle class="progress-ring-bg" stroke="rgba(255,255,255,0.1)" stroke-width="6" fill="transparent" r="50" cx="60" cy="60"/>
+            <circle class="progress-ring-circle" id="brew-progress-circle" stroke="var(--color-primary)" stroke-width="6" fill="transparent" r="50" cx="60" cy="60"/>
+          </svg>
+          <div class="progress-text">
+            <span id="brew-percentage" class="orbitron">0%</span>
+            <span id="brew-timer">残り 0秒</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. COMPLETED STATE (完成) -->
+    <section id="state-completed" class="state-section">
+      <div class="completed-container">
+        <div class="success-icon-wrapper">
+          <div class="success-ring"></div>
+          <span class="success-emoji">☕</span>
+        </div>
+        
+        <h2 class="completed-title">完成しました！</h2>
+        <p class="completed-desc">できたてのおいしさをお持ち帰りください</p>
+        
+        <div class="pickup-directions">
+          <div class="direction-card">
+            <div class="arrow-container">
+              <svg viewBox="0 0 100 100" class="arrow-svg">
+                <path d="M50,20 L50,80 M30,60 L50,80 L70,60" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <p class="direction-text">下側の受取口でお待ちください</p>
+          </div>
+        </div>
+
+        <div class="completed-footer">
+          <p class="thankyou-text orbitron">THANK YOU</p>
+          <div class="timeout-indicator">
+            <div id="reset-progress-bar" class="timeout-fill"></div>
+            <span class="timeout-text">利用者が離れると自動で戻ります</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ⚙️ DEBUG PANEL (開発・デモ安定用コントローラー) -->
+  <div id="debug-trigger" title="デバッグパネルを開く">🛠️</div>
+  <div id="debug-panel">
+    <div class="debug-header">
+      <h3>DEMO CONTROLLER</h3>
+      <span id="debug-close">✕</span>
+    </div>
+    <div class="debug-body">
+      
+      <!-- Webcam Preview Window -->
+      <div class="debug-video-container">
+        <video id="webcam" width="160" height="120" autoplay playsinline muted></video>
+        <canvas id="debug-overlay" width="160" height="120"></canvas>
+        <div class="video-overlay-text">CAMERA VIEW</div>
+      </div>
+
+      <div class="debug-section">
+        <h4>検知シミュレーター</h4>
+        <div class="btn-group">
+          <button id="btn-sim-detect" class="debug-btn green">👤 人物検知</button>
+          <button id="btn-sim-lost" class="debug-btn red">🚫 人物ロスト</button>
+        </div>
+        <div class="btn-group">
+          <button id="btn-sim-new" class="debug-btn">👤 新規として認識</button>
+          <button id="btn-sim-return" class="debug-btn">👥 既存として認識</button>
+        </div>
+      </div>
+
+      <div class="debug-section">
+        <h4>状態の強制遷移</h4>
+        <div class="state-select-grid">
+          <button onclick="app.transitionTo('standby')" class="debug-btn">待機</button>
+          <button onclick="app.transitionTo('orderable')" class="debug-btn">注文可</button>
+          <button onclick="app.transitionTo('brewing')" class="debug-btn">抽出中</button>
+          <button onclick="app.transitionTo('completed')" class="debug-btn">完成</button>
+        </div>
+      </div>
+
+      <div class="debug-section">
+        <h4>システム設定</h4>
+        <div class="control-row">
+          <label for="cfg-camera-toggle">カメラ検知:</label>
+          <input type="checkbox" id="cfg-camera-toggle" checked>
+        </div>
+        <div class="control-row">
+          <label for="cfg-auto-detect">新待機検知モード:</label>
+          <input type="checkbox" id="cfg-auto-detect">
+        </div>
+        <div class="control-row">
+          <label for="cfg-brew-time">抽出時間 (秒):</label>
+          <input type="range" id="cfg-brew-time" min="3" max="15" value="7">
+          <span id="cfg-brew-time-val">7s</span>
+        </div>
+        <div class="control-row">
+          <label for="cfg-sound-toggle">効果音再生:</label>
+          <input type="checkbox" id="cfg-sound-toggle" checked>
+        </div>
+      </div>
+
+      <div class="debug-section">
+        <h4>ステータス情報</h4>
+        <div class="status-logs" id="debug-logs">
+          <div>System initialized...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JavaScript Link -->
+  <script src="app.js"></script>
+</body>
+</html>
