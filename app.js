@@ -597,7 +597,7 @@ class CoffeeMachineApp {
     // 抽出音を少し遅らせて再生開始
     setTimeout(() => {
       if (this.currentState === 'brewing') {
-        this.playSFX('steam_brew');
+        //this.playSFX('steam_brew');//抽出中のSE削除
         this.dom.dripStream.classList.add('active'); // 液体落下ライン開始
       }
     }, 400);
