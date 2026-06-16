@@ -34,27 +34,20 @@
 html {
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 body {
   width: 100%;
-  min-height: 100vh;
+  min-height: calc(100vh + var(--mobile-spacer-height));
+  overflow-x: hidden;
   overflow-y: auto;
   background-color: var(--color-bg-dark);
   font-family: var(--font-main);
   color: var(--color-text-main);
   -webkit-font-smoothing: antialiased;
-  display: grid;
-  grid-template-rows: var(--mobile-spacer-height) 1fr;
-  align-items: start;
-}
-
-body::before {
-  content: "";
-  display: block;
-  background-color: var(--color-bg-dark);
-  grid-row: 1;
+  padding-top: var(--mobile-spacer-height);
 }
 
 /* Background Glow Effect */
@@ -88,15 +81,12 @@ body::before {
 #app-container {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
   z-index: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-shrink: 0;
-  grid-row: 2;
 }
-
 /* State Sections (Fade Transition) */
 .state-section {
   position: absolute;
@@ -107,9 +97,8 @@ body::before {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-padding-top: 20vh;
+  padding-top: 20vh;
   align-items: center;
-  padding: 8rem 2rem 2rem;
   opacity: 0;
   pointer-events: none;
   transform: scale(0.98);
