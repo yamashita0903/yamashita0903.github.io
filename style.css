@@ -18,6 +18,8 @@
   
   --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-digital: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  
+  --mobile-spacer-height: 100px;
 }
 
 /* Reset & Base Styles */
@@ -29,20 +31,30 @@
   -webkit-user-select: none;
 }
 
-html, body {
+html {
   width: 100%;
   height: 100%;
   overflow: hidden;
+}
+
+body {
+  width: 100%;
+  min-height: 100vh;
   overflow-y: auto;
   background-color: var(--color-bg-dark);
   font-family: var(--font-main);
   color: var(--color-text-main);
   -webkit-font-smoothing: antialiased;
+  display: grid;
+  grid-template-rows: var(--mobile-spacer-height) 1fr;
+  align-items: start;
 }
-body::after {
+
+body::before {
   content: "";
   display: block;
-  height: 60px;
+  background-color: var(--color-bg-dark);
+  grid-row: 1;
 }
 
 /* Background Glow Effect */
@@ -76,11 +88,13 @@ body::after {
 #app-container {
   position: relative;
   width: 100%;
-  height: 100%;
+  min-height: 100vh;
   z-index: 1;
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-shrink: 0;
+  grid-row: 2;
 }
 
 /* State Sections (Fade Transition) */
@@ -92,9 +106,10 @@ body::after {
   left: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
+padding-top: 20vh;
   align-items: center;
-  padding: 2rem;
+  padding: 8rem 2rem 2rem;
   opacity: 0;
   pointer-events: none;
   transform: scale(0.98);
