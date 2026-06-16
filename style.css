@@ -19,7 +19,7 @@
   --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-digital: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   
-  --mobile-spacer-height: 300px;
+  --mobile-spacer-height: 0px;
 }
 
 /* Reset & Base Styles */
@@ -79,9 +79,7 @@ body {
 
 /* Main App Layout */
 #app-container {
-  position: fixed;
-  top: 0;
-  left: 0;
+  position: relative;
   width: 100%;
   height: 100dvh;
   z-index: 1;
