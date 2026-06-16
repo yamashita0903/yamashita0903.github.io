@@ -34,20 +34,17 @@
 html {
   width: 100%;
   height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 body {
   width: 100%;
-  min-height: calc(100dvh + var(--mobile-spacer-height));
-  overflow-x: hidden;
-  overflow-y: auto;
+  height: 100%;
+  overflow: hidden;
   background-color: var(--color-bg-dark);
   font-family: var(--font-main);
   color: var(--color-text-main);
   -webkit-font-smoothing: antialiased;
-  padding-top: var(--mobile-spacer-height);
 }
 
 /* Background Glow Effect */
@@ -81,28 +78,17 @@ body {
 #app-container {
   position: relative;
   width: 100%;
-  height: 100dvh;
+  height: 100vh;
   z-index: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 /* State Sections (Fade Transition) */
 .state-section {
   position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
+  inset: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  padding-top: 20vh;
+  justify-content: center;
   align-items: center;
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(0.98);
-  transition: opacity 1.15s ease, transform 1.15s ease;
 }
 
 .state-section.active {
@@ -428,7 +414,7 @@ body {
    3. ORDERABLE STATE (注文可能)
    ========================================================================== */
 #state-orderable {
-  padding: max(28px, env(safe-area-inset-top)) 28px max(34px, env(safe-area-inset-bottom));
+  padding: 0;
   overflow: hidden;
 }
 
@@ -948,17 +934,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1.8rem;
-}
-
-/* Webcam Window inside Debug */
-.debug-video-container {
-  position: relative;
-  width: 100%;
-  height: 130px;
-  background-color: #000;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.15);
 }
 
 #webcam {
