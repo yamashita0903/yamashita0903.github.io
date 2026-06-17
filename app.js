@@ -11,9 +11,10 @@ class CoffeeMachineApp {
     this.brewDuration = 7; // 秒 (スライダーで可変)
     this.useCamera = true;
     this.soundEnabled = true;
-    this.cameraRotateRight = true;
+    this.cameraRotateRight = false;
+    this.cameraRotateLeft = false;
     this.cameraJudgmentLevel = 75;
-    this.textScale = 0.95;
+    this.contentScale = 0.7;
     this.enableStandbyTapTransition = true;
     this.isUserDetected = false;
     this.isSimulatingUser = false;
@@ -97,7 +98,8 @@ class CoffeeMachineApp {
       
       // Settings
       cfgCamera: document.getElementById('cfg-camera-toggle'),
-      cfgCameraRotate: document.getElementById('cfg-camera-rotate'),
+      cfgCameraRotateRight: document.getElementById('cfg-camera-rotate-right'),
+      cfgCameraRotateLeft: document.getElementById('cfg-camera-rotate-left'),
       cfgCameraJudgment: document.getElementById('cfg-camera-judgment'),
       cfgCameraJudgmentVal: document.getElementById('cfg-camera-judgment-val'),
       cfgStandbyTapTransition: document.getElementById('cfg-standby-tap-transition'),
@@ -105,8 +107,8 @@ class CoffeeMachineApp {
       cfgBrewTimeVal: document.getElementById('cfg-brew-time-val'),
       cfgHoldDuration: document.getElementById('cfg-hold-duration'),
       cfgHoldDurationVal: document.getElementById('cfg-hold-duration-val'),
-      cfgTextScale: document.getElementById('cfg-text-scale'),
-      cfgTextScaleVal: document.getElementById('cfg-text-scale-val')
+      cfgContentScale: document.getElementById('cfg-content-scale'),
+      cfgContentScaleVal: document.getElementById('cfg-content-scale-val')
     };
 
     // Load sections
@@ -129,7 +131,7 @@ class CoffeeMachineApp {
     this.syncSettingsUI();
     this.applyCameraRotationSetting();
     this.applyCameraJudgmentSetting();
-    this.applyTextScaleSetting();
+    this.applyContentScaleSetting();
     
     // Init MediaPipe
     this.initMediaPipe();
@@ -452,8 +454,11 @@ class CoffeeMachineApp {
     if (this.dom.cfgCamera) {
       this.dom.cfgCamera.checked = this.useCamera;
     }
-    if (this.dom.cfgCameraRotate) {
-      this.dom.cfgCameraRotate.checked = this.cameraRotateRight;
+    if (this.dom.cfgCameraRotateRight) {
+      this.dom.cfgCameraRotateRight.checked = this.cameraRotateRight;
+    }
+    if (this.dom.cfgCameraRotateLeft) {
+      this.dom.cfgCameraRotateLeft.checked = this.cameraRotateLeft;
     }
     if (this.dom.cfgCameraJudgment) {
       this.dom.cfgCameraJudgment.value = String(this.cameraJudgmentLevel);
@@ -476,17 +481,20 @@ class CoffeeMachineApp {
     if (this.dom.cfgHoldDurationVal) {
       this.dom.cfgHoldDurationVal.textContent = `${(this.standbyFaceHoldDuration / 1000).toFixed(1)}秒`;
     }
-    if (this.dom.cfgTextScale) {
-      this.dom.cfgTextScale.value = String(Math.round(this.textScale * 100));
+    if (this.dom.cfgContentScale) {
+      this.dom.cfgContentScale.value = String(Math.round(this.contentScale * 100));
     }
-    if (this.dom.cfgTextScaleVal) {
-      this.dom.cfgTextScaleVal.textContent = `${Math.round(this.textScale * 100)}%`;
+    if (this.dom.cfgContentScaleVal) {
+      this.dom.cfgContentScaleVal.textContent = `${Math.round(this.contentScale * 100)}%`;
     }
   }
 
   applyCameraRotationSetting() {
     if (!this.dom.debugVideoContainer) return;
-    this.dom.debugVideoContainer.classList.toggle('camera-rotated-right', this.cameraRotateRight);
+    const applyRight = this.cameraRotateRight && !this.cameraRotateLeft;
+    const applyLeft = this.cameraRotateLeft && !this.cameraRotateRight;
+    this.dom.debugVideoContainer.classList.toggle('camera-rotated-right', applyRight);
+    this.dom.debugVideoContainer.classList.toggle('camera-rotated-left', applyLeft);
   }
 
   applyCameraJudgmentSetting() {
@@ -495,8 +503,8 @@ class CoffeeMachineApp {
     this.standbyFaceMatchSizeLimit = 0.22 + (normalized * 0.08);
   }
 
-  applyTextScaleSetting() {
-    document.documentElement.style.setProperty('--content-ui-scale', String(this.textScale));
+  applyContentScaleSetting() {
+    document.documentElement.style.setProperty('--content-scale', String(this.contentScale));
   }
 
   getCameraJudgmentLabel(level) {
@@ -792,9 +800,15 @@ class CoffeeMachineApp {
       }
     });
 
-    // デバッグ設定: カメラを左回転
-    this.dom.cfgCameraRotate.addEventListener('change', (e) => {
+    // デバッグ設定: カメラを右回転
+    this.dom.cfgCameraRotateRight.addEventListener('change', (e) => {
       this.cameraRotateRight = e.target.checked;
+      this.applyCameraRotationSetting();
+    });
+
+    // デバッグ設定: カメラを左回転
+    this.dom.cfgCameraRotateLeft.addEventListener('change', (e) => {
+      this.cameraRotateLeft = e.target.checked;
       this.applyCameraRotationSetting();
     });
 
@@ -826,12 +840,12 @@ class CoffeeMachineApp {
       }
     });
 
-    // デバッグ設定: 文字の大きさ
-    this.dom.cfgTextScale.addEventListener('input', (e) => {
-      this.textScale = parseInt(e.target.value, 10) / 100;
-      this.applyTextScaleSetting();
-      if (this.dom.cfgTextScaleVal) {
-        this.dom.cfgTextScaleVal.textContent = `${e.target.value}%`;
+    // デバッグ設定: コンテンツ表示の大きさ
+    this.dom.cfgContentScale.addEventListener('input', (e) => {
+      this.contentScale = parseInt(e.target.value, 10) / 100;
+      this.applyContentScaleSetting();
+      if (this.dom.cfgContentScaleVal) {
+        this.dom.cfgContentScaleVal.textContent = `${e.target.value}%`;
       }
     });
 

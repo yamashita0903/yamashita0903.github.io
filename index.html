@@ -68,7 +68,7 @@
           <h2 id="order-greeting-title" class="order-greeting-title"></h2>
           <p id="order-greeting-message" class="order-greeting-message"></p>
         </div>
-        <p id="order-question" class="order-question">コーヒーを<br>淹れますか？</p>
+        <p id="order-question" class="order-question">コーヒーを淹れますか？</p>
         <button id="btn-brew" class="brew-button" type="button">淹れる</button>
         <p id="order-sub" class="order-sub">タップしてください</p>
       </div>
@@ -193,8 +193,12 @@
           <input type="checkbox" id="cfg-camera-toggle" checked>
         </div>
         <div class="control-row">
-          <label for="cfg-camera-rotate">カメラを90度右回転:</label>
-          <input type="checkbox" id="cfg-camera-rotate" checked>
+          <label for="cfg-camera-rotate-right">カメラを90度右回転:</label>
+          <input type="checkbox" id="cfg-camera-rotate-right">
+        </div>
+        <div class="control-row">
+          <label for="cfg-camera-rotate-left">カメラを90度左回転:</label>
+          <input type="checkbox" id="cfg-camera-rotate-left">
         </div>
         <div class="control-row">
           <label for="cfg-camera-judgment">カメラの判定:</label>
@@ -205,15 +209,15 @@
           <label for="cfg-standby-tap-transition">待機→注文可 タップでも移行可:</label>
           <input type="checkbox" id="cfg-standby-tap-transition" checked>
         </div>
-        <div class="control-row">
+        <div class="control-row control-row--wide">
           <label for="cfg-hold-duration">秒保持すると注文可へ:</label>
           <input type="range" id="cfg-hold-duration" min="0.5" max="5" step="0.1" value="1.5">
           <span id="cfg-hold-duration-val">1.5秒</span>
         </div>
-        <div class="control-row">
-          <label for="cfg-text-scale">コンテンツ表示の文字の大きさ:</label>
-          <input type="range" id="cfg-text-scale" min="50" max="100" step="1" value="95">
-          <span id="cfg-text-scale-val">95%</span>
+        <div class="control-row control-row--wide">
+          <label for="cfg-content-scale">コンテンツ表示の大きさ:</label>
+          <input type="range" id="cfg-content-scale" min="20" max="95" step="1" value="70">
+          <span id="cfg-content-scale-val">70%</span>
         </div>
         <div class="control-row">
           <label for="cfg-brew-time">抽出時間 (秒):</label>

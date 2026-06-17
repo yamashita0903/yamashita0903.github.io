@@ -18,7 +18,7 @@
   
   --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-digital: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --content-ui-scale: 0.95;
+  --content-scale: 0.7;
   
 }
 
@@ -36,10 +36,6 @@ html {
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-}
-
-#app-container {
-  font-size: calc(16px * var(--content-ui-scale));
 }
 
 body {
@@ -449,6 +445,8 @@ body {
   gap: clamp(20px, 3.4vh, 34px);
   text-align: center;
   color: var(--cream);
+  transform: scale(var(--content-scale));
+  transform-origin: center center;
 }
 
 .order-question {
@@ -537,6 +535,8 @@ body {
   width: 100%;
   max-width: 500px;
   text-align: center;
+  transform: scale(var(--content-scale));
+  transform-origin: center center;
 }
 
 .brewing-title {
@@ -712,6 +712,8 @@ body {
   text-align: center;
   width: 100%;
   max-width: 500px;
+  transform: scale(var(--content-scale));
+  transform-origin: center center;
 }
 
 .success-icon-wrapper {
@@ -968,11 +970,21 @@ body {
 
 .camera-rotated-right #webcam,
 .camera-rotated-right #debug-overlay {
-  transform: rotate(90deg);
+  transform: rotate(90deg) scaleX(-1);
   transform-origin: center center;
 }
 
 .camera-rotated-right #webcam {
+  object-fit: cover;
+}
+
+.camera-rotated-left #webcam,
+.camera-rotated-left #debug-overlay {
+  transform: rotate(-90deg) scaleX(-1);
+  transform-origin: center center;
+}
+
+.camera-rotated-left #webcam {
   object-fit: cover;
 }
 
@@ -1102,6 +1114,23 @@ body {
   color: var(--color-primary);
 }
 
+.control-row--wide {
+  flex-wrap: wrap;
+}
+
+.control-row--wide label {
+  flex: 1 0 100%;
+}
+
+.control-row--wide input[type="range"] {
+  width: 100%;
+  margin: 0;
+}
+
+.control-row--wide span {
+  min-width: auto;
+}
+
 .status-logs {
   background-color: #0b0908;
   border: 1px solid rgba(255,255,255,0.08);
@@ -1169,10 +1198,4 @@ body {
   .completed-desc {
     font-size: 1rem;
   }
-}
-
-.order-container,
-.brewing-container,
-.completed-container {
-  transform: scale(0.7);
 }
