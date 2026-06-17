@@ -1170,3 +1170,9 @@ body {
     font-size: 1rem;
   }
 }
+
+.order-container,
+.brewing-container,
+.completed-container {
+  transform: scale(0.7);
+}
