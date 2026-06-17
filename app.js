@@ -15,6 +15,7 @@ class CoffeeMachineApp {
     this.cameraRotateLeft = false;
     this.cameraJudgmentLevel = 75;
     this.contentScale = 0.7;
+    this.contentLift = 0;
     this.enableStandbyTapTransition = true;
     this.isUserDetected = false;
     this.isSimulatingUser = false;
@@ -108,7 +109,9 @@ class CoffeeMachineApp {
       cfgHoldDuration: document.getElementById('cfg-hold-duration'),
       cfgHoldDurationVal: document.getElementById('cfg-hold-duration-val'),
       cfgContentScale: document.getElementById('cfg-content-scale'),
-      cfgContentScaleVal: document.getElementById('cfg-content-scale-val')
+      cfgContentScaleVal: document.getElementById('cfg-content-scale-val'),
+      cfgContentLift: document.getElementById('cfg-content-lift'),
+      cfgContentLiftVal: document.getElementById('cfg-content-lift-val')
     };
 
     // Load sections
@@ -487,6 +490,12 @@ class CoffeeMachineApp {
     if (this.dom.cfgContentScaleVal) {
       this.dom.cfgContentScaleVal.textContent = `${Math.round(this.contentScale * 100)}%`;
     }
+    if (this.dom.cfgContentLift) {
+      this.dom.cfgContentLift.value = String(this.contentLift);
+    }
+    if (this.dom.cfgContentLiftVal) {
+      this.dom.cfgContentLiftVal.textContent = `${this.contentLift}px`;
+    }
   }
 
   applyCameraRotationSetting() {
@@ -505,6 +514,10 @@ class CoffeeMachineApp {
 
   applyContentScaleSetting() {
     document.documentElement.style.setProperty('--content-scale', String(this.contentScale));
+  }
+
+  applyContentLiftSetting() {
+    document.documentElement.style.setProperty('--content-lift', `${this.contentLift}px`);
   }
 
   getCameraJudgmentLabel(level) {
@@ -846,6 +859,15 @@ class CoffeeMachineApp {
       this.applyContentScaleSetting();
       if (this.dom.cfgContentScaleVal) {
         this.dom.cfgContentScaleVal.textContent = `${e.target.value}%`;
+      }
+    });
+
+    // デバッグ設定: 抽出中/完成コンテンツを上に引き上げる
+    this.dom.cfgContentLift.addEventListener('input', (e) => {
+      this.contentLift = parseInt(e.target.value, 10);
+      this.applyContentLiftSetting();
+      if (this.dom.cfgContentLiftVal) {
+        this.dom.cfgContentLiftVal.textContent = `${this.contentLift}px`;
       }
     });
 
