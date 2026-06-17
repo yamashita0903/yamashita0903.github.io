@@ -18,7 +18,7 @@
   
   --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-digital: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --ui-font-scale: 0.95;
+  --content-ui-scale: 0.95;
   
 }
 
@@ -36,7 +36,10 @@ html {
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-  font-size: calc(16px * var(--ui-font-scale));
+}
+
+#app-container {
+  font-size: calc(16px * var(--content-ui-scale));
 }
 
 body {
@@ -963,13 +966,13 @@ body {
   z-index: 1;
 }
 
-.camera-rotated-left #webcam,
-.camera-rotated-left #debug-overlay {
-  transform: rotate(-90deg);
+.camera-rotated-right #webcam,
+.camera-rotated-right #debug-overlay {
+  transform: rotate(90deg);
   transform-origin: center center;
 }
 
-.camera-rotated-left #webcam {
+.camera-rotated-right #webcam {
   object-fit: cover;
 }
 

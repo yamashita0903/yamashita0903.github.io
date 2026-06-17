@@ -11,7 +11,7 @@ class CoffeeMachineApp {
     this.brewDuration = 7; // 秒 (スライダーで可変)
     this.useCamera = true;
     this.soundEnabled = true;
-    this.cameraRotateLeft = true;
+    this.cameraRotateRight = true;
     this.cameraJudgmentLevel = 75;
     this.textScale = 0.95;
     this.enableStandbyTapTransition = true;
@@ -453,7 +453,7 @@ class CoffeeMachineApp {
       this.dom.cfgCamera.checked = this.useCamera;
     }
     if (this.dom.cfgCameraRotate) {
-      this.dom.cfgCameraRotate.checked = this.cameraRotateLeft;
+      this.dom.cfgCameraRotate.checked = this.cameraRotateRight;
     }
     if (this.dom.cfgCameraJudgment) {
       this.dom.cfgCameraJudgment.value = String(this.cameraJudgmentLevel);
@@ -486,7 +486,7 @@ class CoffeeMachineApp {
 
   applyCameraRotationSetting() {
     if (!this.dom.debugVideoContainer) return;
-    this.dom.debugVideoContainer.classList.toggle('camera-rotated-left', this.cameraRotateLeft);
+    this.dom.debugVideoContainer.classList.toggle('camera-rotated-right', this.cameraRotateRight);
   }
 
   applyCameraJudgmentSetting() {
@@ -496,7 +496,7 @@ class CoffeeMachineApp {
   }
 
   applyTextScaleSetting() {
-    document.documentElement.style.setProperty('--ui-font-scale', String(this.textScale));
+    document.documentElement.style.setProperty('--content-ui-scale', String(this.textScale));
   }
 
   getCameraJudgmentLabel(level) {
@@ -794,7 +794,7 @@ class CoffeeMachineApp {
 
     // デバッグ設定: カメラを左回転
     this.dom.cfgCameraRotate.addEventListener('change', (e) => {
-      this.cameraRotateLeft = e.target.checked;
+      this.cameraRotateRight = e.target.checked;
       this.applyCameraRotationSetting();
     });
 
