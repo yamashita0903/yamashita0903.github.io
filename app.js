@@ -11,6 +11,10 @@ class CoffeeMachineApp {
     this.brewDuration = 7; // 秒 (スライダーで可変)
     this.useCamera = true;
     this.soundEnabled = true;
+    this.cameraRotateLeft = true;
+    this.cameraJudgmentLevel = 75;
+    this.textScale = 0.95;
+    this.enableStandbyTapTransition = true;
     this.isUserDetected = false;
     this.isSimulatingUser = false;
     this.lastDetectedTime = 0;
@@ -21,6 +25,8 @@ class CoffeeMachineApp {
     this.standbyFaceHoldStart = 0;
     this.standbyFaceMinSize = 0.20; // ある程度大きく捉える判定
     this.standbyFaceHoldDuration = 1500; // 1.5秒保持すると注文可へ
+    this.standbyFaceMatchDistLimit = 0.18;
+    this.standbyFaceMatchSizeLimit = 0.26;
     this.orderBgPlayedOnce = false;
 
     // Audio Context
@@ -60,6 +66,7 @@ class CoffeeMachineApp {
       debugPanel: document.getElementById('debug-panel'),
       debugTrigger: document.getElementById('debug-trigger'),
       debugClose: document.getElementById('debug-close'),
+      debugVideoContainer: document.querySelector('.debug-video-container'),
       
       // Standby
       adCanvas: document.getElementById('ad-canvas'),
@@ -90,10 +97,16 @@ class CoffeeMachineApp {
       
       // Settings
       cfgCamera: document.getElementById('cfg-camera-toggle'),
-      cfgAutoDetect: document.getElementById('cfg-auto-detect'),
+      cfgCameraRotate: document.getElementById('cfg-camera-rotate'),
+      cfgCameraJudgment: document.getElementById('cfg-camera-judgment'),
+      cfgCameraJudgmentVal: document.getElementById('cfg-camera-judgment-val'),
+      cfgStandbyTapTransition: document.getElementById('cfg-standby-tap-transition'),
       cfgBrewTime: document.getElementById('cfg-brew-time'),
       cfgBrewTimeVal: document.getElementById('cfg-brew-time-val'),
-      cfgSound: document.getElementById('cfg-sound-toggle')
+      cfgHoldDuration: document.getElementById('cfg-hold-duration'),
+      cfgHoldDurationVal: document.getElementById('cfg-hold-duration-val'),
+      cfgTextScale: document.getElementById('cfg-text-scale'),
+      cfgTextScaleVal: document.getElementById('cfg-text-scale-val')
     };
 
     // Load sections
@@ -111,6 +124,12 @@ class CoffeeMachineApp {
     
     // Bind Event Listeners
     this.bindEvents();
+
+    // Sync settings to default values immediately.
+    this.syncSettingsUI();
+    this.applyCameraRotationSetting();
+    this.applyCameraJudgmentSetting();
+    this.applyTextScaleSetting();
     
     // Init MediaPipe
     this.initMediaPipe();
@@ -429,6 +448,63 @@ class CoffeeMachineApp {
     video.volume = volume;
   }
 
+  syncSettingsUI() {
+    if (this.dom.cfgCamera) {
+      this.dom.cfgCamera.checked = this.useCamera;
+    }
+    if (this.dom.cfgCameraRotate) {
+      this.dom.cfgCameraRotate.checked = this.cameraRotateLeft;
+    }
+    if (this.dom.cfgCameraJudgment) {
+      this.dom.cfgCameraJudgment.value = String(this.cameraJudgmentLevel);
+    }
+    if (this.dom.cfgCameraJudgmentVal) {
+      this.dom.cfgCameraJudgmentVal.textContent = this.getCameraJudgmentLabel(this.cameraJudgmentLevel);
+    }
+    if (this.dom.cfgStandbyTapTransition) {
+      this.dom.cfgStandbyTapTransition.checked = this.enableStandbyTapTransition;
+    }
+    if (this.dom.cfgBrewTime) {
+      this.dom.cfgBrewTime.value = String(this.brewDuration);
+    }
+    if (this.dom.cfgBrewTimeVal) {
+      this.dom.cfgBrewTimeVal.textContent = `${this.brewDuration}s`;
+    }
+    if (this.dom.cfgHoldDuration) {
+      this.dom.cfgHoldDuration.value = String(this.standbyFaceHoldDuration / 1000);
+    }
+    if (this.dom.cfgHoldDurationVal) {
+      this.dom.cfgHoldDurationVal.textContent = `${(this.standbyFaceHoldDuration / 1000).toFixed(1)}秒`;
+    }
+    if (this.dom.cfgTextScale) {
+      this.dom.cfgTextScale.value = String(Math.round(this.textScale * 100));
+    }
+    if (this.dom.cfgTextScaleVal) {
+      this.dom.cfgTextScaleVal.textContent = `${Math.round(this.textScale * 100)}%`;
+    }
+  }
+
+  applyCameraRotationSetting() {
+    if (!this.dom.debugVideoContainer) return;
+    this.dom.debugVideoContainer.classList.toggle('camera-rotated-left', this.cameraRotateLeft);
+  }
+
+  applyCameraJudgmentSetting() {
+    const normalized = Math.max(0, Math.min(1, this.cameraJudgmentLevel / 100));
+    this.standbyFaceMatchDistLimit = 0.16 + (normalized * 0.06);
+    this.standbyFaceMatchSizeLimit = 0.22 + (normalized * 0.08);
+  }
+
+  applyTextScaleSetting() {
+    document.documentElement.style.setProperty('--ui-font-scale', String(this.textScale));
+  }
+
+  getCameraJudgmentLabel(level) {
+    if (level <= 45) return '非常に緩い';
+    if (level <= 80) return 'かなり緩い';
+    return '緩い';
+  }
+
   updateMediaForState(state, restart = false) {
     this.configureVideo(this.dom.standbyCmVideo, {
       muted: state !== 'standby',
@@ -688,6 +764,13 @@ class CoffeeMachineApp {
       this.transitionTo('brewing');
     });
 
+    // 待機画面タップで注文可へ移行
+    this.dom.sections.standby.addEventListener('click', () => {
+      if (this.currentState === 'standby' && this.enableStandbyTapTransition) {
+        this.transitionTo('orderable');
+      }
+    });
+
     // デバッグパネルの開閉
     this.dom.debugTrigger.addEventListener('click', () => {
       this.unlockVideoAudio();
@@ -709,10 +792,24 @@ class CoffeeMachineApp {
       }
     });
 
-    // デバッグ設定: 新待機検知モード
-    this.dom.cfgAutoDetect.addEventListener('change', (e) => {
-      this.newAutoDetectMode = e.target.checked;
-      this.log(`Auto-detect standby mode: ${this.newAutoDetectMode}`);
+    // デバッグ設定: カメラを左回転
+    this.dom.cfgCameraRotate.addEventListener('change', (e) => {
+      this.cameraRotateLeft = e.target.checked;
+      this.applyCameraRotationSetting();
+    });
+
+    // デバッグ設定: カメラ判定のゆるさ
+    this.dom.cfgCameraJudgment.addEventListener('input', (e) => {
+      this.cameraJudgmentLevel = parseInt(e.target.value, 10);
+      this.applyCameraJudgmentSetting();
+      if (this.dom.cfgCameraJudgmentVal) {
+        this.dom.cfgCameraJudgmentVal.textContent = this.getCameraJudgmentLabel(this.cameraJudgmentLevel);
+      }
+    });
+
+    // デバッグ設定: 待機画面からのタップ移行
+    this.dom.cfgStandbyTapTransition.addEventListener('change', (e) => {
+      this.enableStandbyTapTransition = e.target.checked;
     });
 
     // デバッグ設定: 抽出時間
@@ -721,49 +818,20 @@ class CoffeeMachineApp {
       this.dom.cfgBrewTimeVal.textContent = `${this.brewDuration}s`;
     });
 
-    // デバッグ設定: 音声有効無効
-    this.dom.cfgSound.addEventListener('change', (e) => {
-      this.soundEnabled = e.target.checked;
-      this.log(`SFX sounds toggled: ${this.soundEnabled}`);
-    });
-
-    // シミュレーター: 人物検知
-    document.getElementById('btn-sim-detect').addEventListener('click', () => {
-      this.log("Debug: Manually triggered user detect.");
-      this.isSimulatingUser = true;
-      this.lastDetectedTime = Date.now();
-      if (this.currentState === 'standby') {
-        this.handleStandbyDetection({ xCenter: 0.5, yCenter: 0.45, width: 0.28, height: 0.28 });
+    // デバッグ設定: 秒保持すると注文可へ
+    this.dom.cfgHoldDuration.addEventListener('input', (e) => {
+      this.standbyFaceHoldDuration = Math.round(parseFloat(e.target.value) * 1000);
+      if (this.dom.cfgHoldDurationVal) {
+        this.dom.cfgHoldDurationVal.textContent = `${parseFloat(e.target.value).toFixed(1)}秒`;
       }
     });
 
-    // シミュレーター: 人物ロスト
-    document.getElementById('btn-sim-lost').addEventListener('click', () => {
-      this.log("Debug: Manually triggered user lost.");
-      this.isSimulatingUser = false;
-      this.lastDetectedTime = 0; // 即座にタイムアウト
-      this.handleUserLost();
-    });
-
-    // シミュレーター: 新規ユーザーとして認識
-    document.getElementById('btn-sim-new').addEventListener('click', () => {
-      this.log("Debug: Configured next detection as NEW user.");
-      this.forcedUserType = 'new';
-      this.isSimulatingUser = true;
-      this.lastDetectedTime = Date.now();
-      if (this.currentState === 'standby') {
-        this.handleStandbyDetection({ xCenter: 0.5, yCenter: 0.45, width: 0.28, height: 0.28 });
-      }
-    });
-
-    // シミュレーター: 既存ユーザーとして認識
-    document.getElementById('btn-sim-return').addEventListener('click', () => {
-      this.log("Debug: Configured next detection as RETURNING user.");
-      this.forcedUserType = 'returning';
-      this.isSimulatingUser = true;
-      this.lastDetectedTime = Date.now();
-      if (this.currentState === 'standby') {
-        this.transitionTo('orderable');
+    // デバッグ設定: 文字の大きさ
+    this.dom.cfgTextScale.addEventListener('input', (e) => {
+      this.textScale = parseInt(e.target.value, 10) / 100;
+      this.applyTextScaleSetting();
+      if (this.dom.cfgTextScaleVal) {
+        this.dom.cfgTextScaleVal.textContent = `${e.target.value}%`;
       }
     });
 

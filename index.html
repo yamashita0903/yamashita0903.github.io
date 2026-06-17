@@ -177,18 +177,6 @@
       </div>
 
       <div class="debug-section">
-        <h4>検知シミュレーター</h4>
-        <div class="btn-group">
-          <button id="btn-sim-detect" class="debug-btn green">👤 人物検知</button>
-          <button id="btn-sim-lost" class="debug-btn red">🚫 人物ロスト</button>
-        </div>
-        <div class="btn-group">
-          <button id="btn-sim-new" class="debug-btn">👤 新規として認識</button>
-          <button id="btn-sim-return" class="debug-btn">👥 既存として認識</button>
-        </div>
-      </div>
-
-      <div class="debug-section">
         <h4>状態の強制遷移</h4>
         <div class="state-select-grid">
           <button onclick="app.transitionTo('standby')" class="debug-btn">待機</button>
@@ -205,17 +193,32 @@
           <input type="checkbox" id="cfg-camera-toggle" checked>
         </div>
         <div class="control-row">
-          <label for="cfg-auto-detect">新待機検知モード:</label>
-          <input type="checkbox" id="cfg-auto-detect">
+          <label for="cfg-camera-rotate">カメラを90度左回転:</label>
+          <input type="checkbox" id="cfg-camera-rotate" checked>
+        </div>
+        <div class="control-row">
+          <label for="cfg-camera-judgment">カメラの判定:</label>
+          <input type="range" id="cfg-camera-judgment" min="0" max="100" value="75">
+          <span id="cfg-camera-judgment-val">かなり緩い</span>
+        </div>
+        <div class="control-row">
+          <label for="cfg-standby-tap-transition">待機→注文可 タップでも移行可:</label>
+          <input type="checkbox" id="cfg-standby-tap-transition" checked>
+        </div>
+        <div class="control-row">
+          <label for="cfg-hold-duration">秒保持すると注文可へ:</label>
+          <input type="range" id="cfg-hold-duration" min="0.5" max="5" step="0.1" value="1.5">
+          <span id="cfg-hold-duration-val">1.5秒</span>
+        </div>
+        <div class="control-row">
+          <label for="cfg-text-scale">文字の大きさ:</label>
+          <input type="range" id="cfg-text-scale" min="70" max="100" step="1" value="95">
+          <span id="cfg-text-scale-val">95%</span>
         </div>
         <div class="control-row">
           <label for="cfg-brew-time">抽出時間 (秒):</label>
           <input type="range" id="cfg-brew-time" min="3" max="15" value="7">
           <span id="cfg-brew-time-val">7s</span>
-        </div>
-        <div class="control-row">
-          <label for="cfg-sound-toggle">効果音再生:</label>
-          <input type="checkbox" id="cfg-sound-toggle" checked>
         </div>
       </div>
 
